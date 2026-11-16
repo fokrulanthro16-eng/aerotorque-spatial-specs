@@ -9,6 +9,7 @@
     "test:leaf": "tsx --test tests/leaf-scenarios.test.ts",
     "build": "tsc --noEmit",
     "audit:overlap": "node scripts/verify-zero-overlap.mjs",
+    "verify:static": "node scripts/verify-static-deploy.mjs",
     "generate:video": "node scripts/generate-demo-video.mjs"
   },
   "keywords": [

@@ -2,6 +2,12 @@
 node_modules/
 package-lock.json.log
 
+# Ensure Vendored Frontend Libraries Are Tracked
+!preview/vendor/
+!preview/vendor/**
+!vendor/
+!vendor/**
+
 # Build & Dist
 dist/
 build/

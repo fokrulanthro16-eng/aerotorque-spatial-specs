@@ -4,6 +4,7 @@
   "buildCommand": "",
   "outputDirectory": ".",
   "rewrites": [
-    { "source": "/", "destination": "/preview/index.html" }
+    { "source": "/", "destination": "/preview/index.html" },
+    { "source": "/node_modules/three/build/(.*)", "destination": "/preview/vendor/$1" }
   ]
 }
