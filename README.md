@@ -6,6 +6,7 @@
 [![Lens Studio 5.23.2](https://img.shields.io/badge/Lens%20Studio-5.23.2%20Compatible-FFFC00?style=for-the-badge&logo=snapchat&logoColor=black)](https://lensstudio.snapchat.com/)
 [![LEAF Verification](https://img.shields.io/badge/LEAF%20Tests-23%2F23%20Passing-00E5FF?style=for-the-badge&logo=checkmarx&logoColor=black)](https://github.com/fokrulanthro16-eng/aerotorque-spatial-specs)
 [![Zero Collision Audit](https://img.shields.io/badge/Collision%20Audit-0px%20Overlap%20Verified-00E676?style=for-the-badge&logo=codacy&logoColor=black)](https://github.com/fokrulanthro16-eng/aerotorque-spatial-specs)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](LICENSE)
 
 ---
 
@@ -252,3 +253,10 @@ Open [http://localhost:8080/preview/index.html](http://localhost:8080/preview/in
 - **Hackathon:** [Learn AR with SPECS (Round 2)](https://devpost.com)
 - **Built With:** Snap Lens Studio 5.23.2, TypeScript, Three.js, Playwright, Microsoft Neural Speech Synthesis, and the official Devpost `challengepost/learn-specs` skill suite.
 - **Author:** Fokrul Anthro & AeroTorque Engineering Team
+
+---
+
+## 📄 License
+
+This project is licensed under the terms of the [MIT License](LICENSE).  
+Copyright (c) 2026 FOKRUL ISLAM.
