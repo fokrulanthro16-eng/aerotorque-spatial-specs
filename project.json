@@ -1,0 +1,25 @@
+{
+  "name": "AeroTorqueSpatial",
+  "version": "1.0.0",
+  "lensStudioVersion": "5.23.2",
+  "projectType": "SpectaclesBase",
+  "targetPlatform": "Spectacles2024",
+  "settings": {
+    "worldTracking": {
+      "surfaceTracking": true,
+      "planeDetection": "Horizontal"
+    },
+    "handTracking": {
+      "enabled": true,
+      "mode": "21Joint3D",
+      "meshEnabled": false
+    },
+    "display": {
+      "nearClip": 0.1,
+      "farClip": 50.0,
+      "fovVertical": 37.0,
+      "fovHorizontal": 32.0,
+      "additiveBlending": true
+    }
+  }
+}

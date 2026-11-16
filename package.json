@@ -1,0 +1,30 @@
+{
+  "name": "aerotorque-spatial-specs",
+  "version": "1.0.0",
+  "description": "World-locked 1:1 aerospace MRO star-pattern torque sequencer, poka-yoke flange warp interlock, parallax-free optical deflection protractor, and FOD tool shadow rig for Snap SPECS.",
+  "type": "module",
+  "main": "dist/AeroTorqueController.js",
+  "scripts": {
+    "test": "tsx --test tests/*.test.ts",
+    "test:leaf": "tsx --test tests/leaf-scenarios.test.ts",
+    "build": "tsc --noEmit",
+    "audit:overlap": "node scripts/verify-zero-overlap.mjs"
+  },
+  "keywords": [
+    "snap-specs",
+    "augmented-reality",
+    "aerospace-mro",
+    "lens-studio",
+    "spatial-computing"
+  ],
+  "author": "AeroTorque Team",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "@types/three": "^0.187.0",
+    "playwright": "^1.65.1",
+    "three": "^0.187.0",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
+  }
+}

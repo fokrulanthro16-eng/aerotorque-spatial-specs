@@ -1,0 +1,16 @@
+{
+  "appVersion": "5.23.2",
+  "studioVersion": "5.23.2.0",
+  "formatVersion": "1.0.0",
+  "name": "AeroTorqueSpatial",
+  "type": "Spectacles",
+  "targetDevice": "Spectacles (2024)",
+  "features": [
+    "HandTracking",
+    "WorldTracking",
+    "SpectaclesInteractionKit",
+    "SpatialAudio"
+  ],
+  "author": "AeroTorque Team",
+  "description": "World-locked 1:1 aerospace MRO star-pattern torque sequencer, poka-yoke flange warp interlock, parallax-free optical deflection protractor, and FOD tool shadow rig for Snap SPECS."
+}
