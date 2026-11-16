@@ -13,10 +13,10 @@
   </script>
   <style>
     :root {
-      --bg-dark: #121417;
-      --bg-panel: #1b1e24;
-      --bg-header: #21252d;
-      --border-color: #2e3440;
+      --bg-dark: #0e1116;
+      --bg-panel: #161a22;
+      --bg-header: #1d222c;
+      --border-color: #2c3340;
       --accent-cyan: #00E5FF;
       --accent-emerald: #00E676;
       --accent-amber: #FFB300;
@@ -53,6 +53,7 @@
       justify-content: space-between;
       padding: 0 16px;
       font-size: 13px;
+      flex-shrink: 0;
     }
 
     .ls-brand {
@@ -154,8 +155,8 @@
     .ls-workspace {
       flex: 1;
       display: grid;
-      grid-template-columns: 260px 1fr 300px;
-      grid-template-rows: 1fr 140px;
+      grid-template-columns: 260px 1fr 310px;
+      grid-template-rows: 1fr 135px;
       overflow: hidden;
     }
 
@@ -176,7 +177,7 @@
       color: var(--text-muted);
       padding: 10px 14px;
       border-bottom: 1px solid var(--border-color);
-      background: rgba(0, 0, 0, 0.15);
+      background: rgba(0, 0, 0, 0.2);
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -210,13 +211,84 @@
       font-weight: 600;
     }
 
-    .tree-indent-1 { padding-left: 20px; }
-    .tree-indent-2 { padding-left: 36px; }
+    .tree-indent-1 { padding-left: 18px; }
+    .tree-indent-2 { padding-left: 32px; }
 
-    /* Center Panel: 3D Viewport */
+    /* Center Panel: 3D Viewport Container */
     .ls-viewport-container {
       position: relative;
-      background: #08090b;
+      background: #06080b;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* Dedicated Docked Step Switcher Bar (Fix 1: Eliminates Top-Center Collisions) */
+    .viewport-step-dock {
+      height: 42px;
+      background: #141822;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      flex-shrink: 0;
+      z-index: 100;
+    }
+
+    .step-dock-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--accent-cyan);
+      letter-spacing: 0.6px;
+    }
+
+    .step-dock-divider {
+      color: var(--border-color);
+    }
+
+    .step-dock-subtitle {
+      color: var(--text-muted);
+      font-size: 10.5px;
+      font-weight: 500;
+    }
+
+    .state-pills-bar {
+      display: flex;
+      gap: 6px;
+    }
+
+    .state-pill {
+      background: rgba(22, 27, 36, 0.95);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .state-pill:hover {
+      color: #fff;
+      border-color: rgba(255, 255, 255, 0.4);
+    }
+
+    .state-pill.active {
+      background: rgba(0, 229, 255, 0.18);
+      border-color: var(--accent-cyan);
+      color: var(--accent-cyan);
+      box-shadow: 0 0 8px rgba(0, 229, 255, 0.25);
+    }
+
+    /* 3D Canvas Wrapper Area */
+    .viewport-canvas-wrapper {
+      flex: 1;
+      position: relative;
       overflow: hidden;
     }
 
@@ -234,7 +306,7 @@
       width: 100%;
       height: 100%;
       pointer-events: none;
-      box-shadow: inset 0 0 100px rgba(0, 0, 0, 0.7);
+      box-shadow: inset 0 0 120px rgba(0, 0, 0, 0.75);
     }
 
     .waveguide-reticle-center {
@@ -270,7 +342,7 @@
       height: 36px;
     }
 
-    /* 2D World-Projected UI Badges */
+    /* 2D World-Projected UI Badges Layer */
     .spatial-layer {
       position: absolute;
       top: 0;
@@ -280,84 +352,23 @@
       pointer-events: none;
     }
 
-    .spatial-badge {
-      position: absolute;
-      transform: translate(-50%, -100%);
-      pointer-events: auto;
-      transition: opacity 0.2s ease, transform 0.2s ease;
-      white-space: nowrap;
-    }
-
-    .spatial-badge-box {
-      background: rgba(14, 20, 27, 0.92);
-      border: 1px solid var(--accent-cyan);
-      box-shadow: 0 0 14px rgba(0, 229, 255, 0.35);
-      padding: 6px 14px;
-      border-radius: 4px;
-      font-size: 11.5px;
-      font-weight: 700;
-      letter-spacing: 0.5px;
-      color: #fff;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .spatial-badge-stem {
-      width: 2px;
-      height: 36px;
-      background: linear-gradient(to top, var(--accent-cyan), transparent);
-      margin: 0 auto;
-    }
-
-    .badge-poka-yoke {
-      border-color: var(--accent-crimson) !important;
-      box-shadow: 0 0 18px rgba(255, 23, 68, 0.5) !important;
-      color: #FF8A80 !important;
-      animation: alertBlink 1.2s infinite ease-in-out;
-    }
-
-    @keyframes alertBlink {
-      0%, 100% { border-color: var(--accent-crimson); }
-      50% { border-color: #fff; }
-    }
-
-    /* World-Locked FOD Banner */
-    .fod-status-banner {
-      position: absolute;
-      transform: translate(-50%, 0);
-      background: rgba(15, 20, 25, 0.94);
-      border: 1px solid var(--accent-amber);
-      box-shadow: 0 0 12px rgba(255, 179, 0, 0.3);
-      padding: 5px 12px;
-      border-radius: 3px;
-      font-size: 11px;
-      font-weight: 700;
-      color: var(--accent-amber);
-      pointer-events: auto;
-    }
-
-    .fod-status-banner.stowed {
-      border-color: var(--accent-emerald) !important;
-      box-shadow: 0 0 14px rgba(0, 230, 118, 0.35) !important;
-      color: var(--accent-emerald) !important;
-    }
-
-    /* World-Locked Rear Header / Stamp */
+    /* Top Stage Banner / Stamp (Positioned strictly in upper canvas below step dock) */
     .rear-header-banner {
       position: absolute;
       transform: translate(-50%, -50%);
-      background: rgba(16, 22, 30, 0.95);
-      border: 1px solid rgba(0, 229, 255, 0.6);
-      box-shadow: 0 0 20px rgba(0, 229, 255, 0.25);
-      padding: 8px 18px;
+      background: rgba(14, 20, 28, 0.96);
+      border: 1.5px solid rgba(0, 229, 255, 0.65);
+      box-shadow: 0 0 24px rgba(0, 229, 255, 0.28);
+      padding: 9px 20px;
       border-radius: 6px;
       text-align: center;
       pointer-events: auto;
+      white-space: nowrap;
+      z-index: 50;
     }
 
     .rear-header-title {
-      font-size: 12px;
+      font-size: 12.5px;
       font-weight: 800;
       letter-spacing: 0.8px;
       color: var(--accent-cyan);
@@ -371,40 +382,109 @@
     }
 
     .airworthy-stamp-3d {
-      background: rgba(10, 30, 20, 0.96) !important;
+      background: rgba(8, 28, 18, 0.98) !important;
       border: 2px solid var(--accent-emerald) !important;
-      box-shadow: 0 0 28px rgba(0, 230, 118, 0.45) !important;
-      padding: 12px 22px !important;
+      box-shadow: 0 0 32px rgba(0, 230, 118, 0.5) !important;
+      padding: 12px 24px !important;
     }
 
     .airworthy-stamp-title {
-      font-size: 13px !important;
+      font-size: 13.5px !important;
       font-weight: 900 !important;
       color: var(--accent-emerald) !important;
-      letter-spacing: 1px !important;
+      letter-spacing: 1.2px !important;
     }
 
     .airworthy-stamp-hash {
       font-family: monospace;
-      font-size: 9.5px;
+      font-size: 10px;
       color: #A3BE8C;
       margin-top: 4px;
     }
 
-    /* Interactive Bottom Bar Over Viewport */
+    /* Left Zone FOD Banner (Guaranteed within bounds, never clipped) */
+    .fod-status-banner {
+      position: absolute;
+      transform: translate(-50%, 0);
+      background: rgba(15, 20, 26, 0.96);
+      border: 1.5px solid var(--accent-amber);
+      box-shadow: 0 0 16px rgba(255, 179, 0, 0.35);
+      padding: 6px 14px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--accent-amber);
+      pointer-events: auto;
+      white-space: nowrap;
+      z-index: 50;
+    }
+
+    .fod-status-banner.stowed {
+      border-color: var(--accent-emerald) !important;
+      box-shadow: 0 0 18px rgba(0, 230, 118, 0.4) !important;
+      color: var(--accent-emerald) !important;
+    }
+
+    /* Center Zone Active Bolt Spatial Badge (Single-Active Rule) */
+    .spatial-badge {
+      position: absolute;
+      transform: translate(-50%, -100%);
+      pointer-events: auto;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      white-space: nowrap;
+      z-index: 60;
+    }
+
+    .spatial-badge-box {
+      background: rgba(12, 18, 25, 0.95);
+      border: 1.5px solid var(--accent-cyan);
+      box-shadow: 0 0 18px rgba(0, 229, 255, 0.4);
+      padding: 7px 16px;
+      border-radius: 5px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Small clean anchor nub at badge bottom */
+    .spatial-badge-nub {
+      width: 8px;
+      height: 4px;
+      background: var(--accent-cyan);
+      margin: 0 auto;
+      clip-path: polygon(0 0, 100% 0, 50% 100%);
+    }
+
+    .badge-poka-yoke {
+      border-color: var(--accent-crimson) !important;
+      box-shadow: 0 0 22px rgba(255, 23, 68, 0.6) !important;
+      color: #FF8A80 !important;
+      animation: alertBlink 1.2s infinite ease-in-out;
+    }
+
+    @keyframes alertBlink {
+      0%, 100% { border-color: var(--accent-crimson); }
+      50% { border-color: #fff; }
+    }
+
+    /* Interactive Bottom Control Dock */
     .viewport-controls {
       position: absolute;
-      bottom: 14px;
+      bottom: 16px;
       left: 50%;
       transform: translateX(-50%);
-      background: rgba(22, 27, 34, 0.94);
+      background: rgba(18, 23, 30, 0.96);
       border: 1px solid var(--border-color);
       border-radius: 30px;
       padding: 6px 14px;
       display: flex;
       align-items: center;
       gap: 10px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+      box-shadow: 0 8px 28px rgba(0, 0, 0, 0.6);
       z-index: 100;
     }
 
@@ -448,40 +528,6 @@
 
     .ctrl-btn.alert:hover {
       background: rgba(255, 23, 68, 0.3);
-    }
-
-    /* State Pills */
-    .state-pills-bar {
-      position: absolute;
-      top: 14px;
-      left: 50%;
-      transform: translateX(-50%);
-      display: flex;
-      gap: 6px;
-      z-index: 100;
-    }
-
-    .state-pill {
-      background: rgba(20, 24, 30, 0.88);
-      border: 1px solid var(--border-color);
-      color: var(--text-muted);
-      padding: 4px 10px;
-      border-radius: 12px;
-      font-size: 10.5px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.15s ease;
-    }
-
-    .state-pill:hover {
-      color: #fff;
-      border-color: rgba(255, 255, 255, 0.3);
-    }
-
-    .state-pill.active {
-      background: rgba(0, 229, 255, 0.16);
-      border-color: var(--accent-cyan);
-      color: var(--accent-cyan);
     }
 
     /* Right Panel: Inspector */
@@ -542,7 +588,7 @@
     /* Bottom Panel: Logger Console */
     .ls-panel-bottom {
       grid-column: 1 / -1;
-      background: #14171d;
+      background: #11141a;
       border-top: 1px solid var(--border-color);
       display: flex;
       flex-direction: column;
@@ -651,6 +697,7 @@
         <div class="tree-node tree-indent-2" id="treeBolt2">• Bolt_2_NE (+0.085, +0.025, -0.085)</div>
         <div class="tree-node tree-indent-2" id="treeBolt3">• Bolt_3_SW (-0.085, +0.025, +0.085)</div>
         <div class="tree-node tree-indent-2">• Active_Torque_Halo_Ring</div>
+        <div class="tree-node tree-indent-2">• Vertical_Leader_Stem</div>
         <div class="tree-node tree-indent-2">• Parabolic_Spline_Arc</div>
         <div class="tree-node tree-indent-1">▼ RightZone_OpticalProtractor</div>
         <div class="tree-node tree-indent-2">• Vernier_Arc_Mesh (-15°..+15°)</div>
@@ -664,73 +711,83 @@
       </div>
     </aside>
 
-    <!-- Center: 3D Viewport -->
+    <!-- Center: 3D Viewport with Dedicated Step Switcher Dock -->
     <main class="ls-viewport-container">
-      <canvas id="viewport3d"></canvas>
-
-      <!-- Waveguide Overlay -->
-      <div class="waveguide-overlay">
-        <div class="waveguide-reticle-center"></div>
+      <!-- Dedicated Docked Step Switcher Row (Fix 1: Eliminates Top-Center Collisions) -->
+      <div class="viewport-step-dock">
+        <div class="step-dock-header">
+          <span>SEQUENCE CONTROLLER</span>
+          <span class="step-dock-divider">|</span>
+          <span class="step-dock-subtitle">FAA PART 43 MRO</span>
+        </div>
+        <div class="state-pills-bar" id="statePills">
+          <div class="state-pill active" data-state="0">0: Bolt 1 (NW)</div>
+          <div class="state-pill" data-state="1">1: Poka-Yoke Demo</div>
+          <div class="state-pill" data-state="2">2: Bolt 4 (SE)</div>
+          <div class="state-pill" data-state="3">3: Bolt 2 (NE)</div>
+          <div class="state-pill" data-state="4">4: Bolt 3 (SW)</div>
+          <div class="state-pill" data-state="5">5: 1:1 Protractor</div>
+          <div class="state-pill" data-state="6">6: Airworthy Stamp</div>
+        </div>
       </div>
 
-      <!-- State Pills Bar -->
-      <div class="state-pills-bar" id="statePills">
-        <div class="state-pill active" data-state="0">0: Bolt 1 (NW)</div>
-        <div class="state-pill" data-state="1">1: Poka-Yoke Demo</div>
-        <div class="state-pill" data-state="2">2: Bolt 4 (SE)</div>
-        <div class="state-pill" data-state="3">3: Bolt 2 (NE)</div>
-        <div class="state-pill" data-state="4">4: Bolt 3 (SW)</div>
-        <div class="state-pill" data-state="5">5: 1:1 Protractor</div>
-        <div class="state-pill" data-state="6">6: Airworthy Stamp</div>
-      </div>
+      <!-- 3D Canvas Area (Strictly below step dock) -->
+      <div class="viewport-canvas-wrapper" id="canvasWrapper">
+        <canvas id="viewport3d"></canvas>
 
-      <!-- 2D Spatial Projected Badges (Single-Active Policy) -->
-      <div class="spatial-layer" id="spatialLayer">
-        <!-- Rear Elevated Zone Header / Stamp -->
-        <div class="rear-header-banner" id="rearHeaderBadge" data-spatial-id="rear-header">
-          <div class="rear-header-title" id="rearHeaderTitle">STAGE 1/3: STAR-PATTERN TORQUE SEQUENCER</div>
-          <div class="rear-header-sub" id="rearHeaderSub">WORLD-LOCKED DATUM: MRO_Workbench_Anchor [Y=0.00m]</div>
+        <!-- Waveguide Overlay -->
+        <div class="waveguide-overlay">
+          <div class="waveguide-reticle-center"></div>
         </div>
 
-        <!-- Left Zone FOD Mat Status -->
-        <div class="fod-status-banner" id="fodStatusBadge" data-spatial-id="fod-status">
-          FOD SHADOW MAT: WRENCH IN HAND (ACTIVE MRO)
-        </div>
-
-        <!-- Center Zone Active Bolt Badge (Only one active at a time!) -->
-        <div class="spatial-badge" id="activeBoltBadge" data-spatial-id="center-active-bolt" style="display:none;">
-          <div class="spatial-badge-box" id="activeBoltBox">
-            <span id="activeBoltText">BOLT #1 [NW] | TARGET: 12.5 N·m | STAR SEQ 1/4</span>
+        <!-- 2D World-Projected UI Badges -->
+        <div class="spatial-layer" id="spatialLayer">
+          <!-- Rear Elevated Zone Header / Stamp -->
+          <div class="rear-header-banner" id="rearHeaderBadge" data-spatial-id="rear-header">
+            <div class="rear-header-title" id="rearHeaderTitle">STAGE 1/3: STAR-PATTERN TORQUE SEQUENCER</div>
+            <div class="rear-header-sub" id="rearHeaderSub">WORLD-LOCKED DATUM: MRO_Workbench_Anchor [Y=0.00m]</div>
           </div>
-          <div class="spatial-badge-stem" id="activeBoltStem"></div>
-        </div>
 
-        <!-- Right Zone Protractor Verification Badge -->
-        <div class="spatial-badge" id="protractorBadge" data-spatial-id="right-protractor-badge" style="display:none;">
-          <div class="spatial-badge-box" style="border-color:var(--accent-emerald); box-shadow:0 0 14px rgba(0,230,118,0.35); color:var(--accent-emerald);">
-            <span>DEFLECTION: +15.0° (±0.08° TOLERANCE VERIFIED — PARALLAX 0)</span>
+          <!-- Left Zone FOD Mat Status (Inward X=-0.22m, guaranteed within bounds) -->
+          <div class="fod-status-banner" id="fodStatusBadge" data-spatial-id="fod-status">
+            FOD SHADOW MAT: WRENCH IN HAND (ACTIVE MRO)
           </div>
-          <div class="spatial-badge-stem" style="background:linear-gradient(to top, var(--accent-emerald), transparent);"></div>
-        </div>
-      </div>
 
-      <!-- Interactive Viewport Controls -->
-      <div class="viewport-controls">
-        <button class="ctrl-btn primary" id="btnPinch">
-          <span>🤏</span> Pinch to Advance (Space)
-        </button>
-        <button class="ctrl-btn alert" id="btnPokaYoke">
-          <span>⚠️</span> Simulate Wrong Bolt (P)
-        </button>
-        <button class="ctrl-btn" id="btnAutoPlay">
-          <span>▶</span> Auto-Play Demo (A)
-        </button>
-        <button class="ctrl-btn" id="btnOverlapToggle">
-          <span>📐</span> Audit 0px Overlap (B)
-        </button>
-        <button class="ctrl-btn" id="btnReset">
-          <span>↺</span> Reset
-        </button>
+          <!-- Center Zone Active Bolt Badge (Single-Active Policy, terminates at leader line) -->
+          <div class="spatial-badge" id="activeBoltBadge" data-spatial-id="center-active-bolt" style="display:none;">
+            <div class="spatial-badge-box" id="activeBoltBox">
+              <span id="activeBoltText">BOLT #1 [NW] | TARGET: 12.5 N·m | STAR SEQ 1/4</span>
+            </div>
+            <div class="spatial-badge-nub" id="activeBoltNub"></div>
+          </div>
+
+          <!-- Right Zone Protractor Verification Badge -->
+          <div class="spatial-badge" id="protractorBadge" data-spatial-id="right-protractor-badge" style="display:none;">
+            <div class="spatial-badge-box" style="border-color:var(--accent-emerald); box-shadow:0 0 16px rgba(0,230,118,0.4); color:var(--accent-emerald);">
+              <span>DEFLECTION: +15.0° (±0.08° TOLERANCE VERIFIED — PARALLAX 0)</span>
+            </div>
+            <div class="spatial-badge-nub" style="background:var(--accent-emerald);"></div>
+          </div>
+        </div>
+
+        <!-- Interactive Bottom Control Dock -->
+        <div class="viewport-controls">
+          <button class="ctrl-btn primary" id="btnPinch">
+            <span>🤏</span> Pinch to Advance (Space)
+          </button>
+          <button class="ctrl-btn alert" id="btnPokaYoke">
+            <span>⚠️</span> Simulate Wrong Bolt (P)
+          </button>
+          <button class="ctrl-btn" id="btnAutoPlay">
+            <span>▶</span> Auto-Play Demo (A)
+          </button>
+          <button class="ctrl-btn" id="btnOverlapToggle">
+            <span>📐</span> Audit 0px Overlap (B)
+          </button>
+          <button class="ctrl-btn" id="btnReset">
+            <span>↺</span> Reset
+          </button>
+        </div>
       </div>
     </main>
 
@@ -842,26 +899,26 @@
   <script type="module">
     import * as THREE from 'three';
 
-    // --- State Machine Definitions ---
+    // Fastener definitions
     const BOLTS = [
-      { id: 'bolt-1', name: 'Bolt #1 (NW)', pos: new THREE.Vector3(-0.085, 0.025, -0.085), step: 1 },
-      { id: 'bolt-4', name: 'Bolt #4 (SE)', pos: new THREE.Vector3(0.085, 0.025, 0.085), step: 2 },
-      { id: 'bolt-2', name: 'Bolt #2 (NE)', pos: new THREE.Vector3(0.085, 0.025, -0.085), step: 3 },
-      { id: 'bolt-3', name: 'Bolt #3 (SW)', pos: new THREE.Vector3(-0.085, 0.025, 0.085), step: 4 }
+      { id: 'bolt-1', name: 'Bolt #1 (NW)', pos: new THREE.Vector3(-0.085, 0.025, -0.085), step: 1, label: '#1 NW' },
+      { id: 'bolt-4', name: 'Bolt #4 (SE)', pos: new THREE.Vector3(0.085, 0.025, 0.085), step: 2, label: '#4 SE' },
+      { id: 'bolt-2', name: 'Bolt #2 (NE)', pos: new THREE.Vector3(0.085, 0.025, -0.085), step: 3, label: '#2 NE' },
+      { id: 'bolt-3', name: 'Bolt #3 (SW)', pos: new THREE.Vector3(-0.085, 0.025, 0.085), step: 4, label: '#3 SW' }
     ];
 
     let currentState = 0;
     let autoPlayTimer = null;
     let showBoundingBoxes = false;
 
-    // --- Three.js Scene Setup ---
+    // Canvas & Container
     const canvas = document.getElementById('viewport3d');
-    const container = canvas.parentElement;
+    const container = document.getElementById('canvasWrapper');
 
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x0a0c10);
+    scene.background = new THREE.Color(0x080b10);
 
-    // Camera matching SPECS optical viewpoint
+    // Camera with SPECS optics framing
     const camera = new THREE.PerspectiveCamera(37, container.clientWidth / container.clientHeight, 0.05, 10);
     camera.position.set(0.0, 0.44, 0.62);
     camera.lookAt(0.0, 0.04, -0.02);
@@ -871,17 +928,25 @@
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.shadowMap.enabled = true;
 
-    // Lighting
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+    // --- Enhanced Bright Multi-Source Lighting (Fix 3) ---
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.95);
     scene.add(ambientLight);
 
-    const dirLight = new THREE.DirectionalLight(0xffffff, 1.2);
-    dirLight.position.set(0.4, 0.8, 0.5);
-    scene.add(dirLight);
+    const keyLight = new THREE.DirectionalLight(0xffffff, 1.8);
+    keyLight.position.set(0.5, 1.4, 0.9);
+    scene.add(keyLight);
 
-    const cyanPointLight = new THREE.PointLight(0x00E5FF, 1.5, 0.8);
-    cyanPointLight.position.set(0, 0.15, 0);
-    scene.add(cyanPointLight);
+    const fillLightCyan = new THREE.DirectionalLight(0x00E5FF, 0.7);
+    fillLightCyan.position.set(-0.8, 0.8, 0.6);
+    scene.add(fillLightCyan);
+
+    const rimLight = new THREE.DirectionalLight(0xffffff, 0.9);
+    rimLight.position.set(0.0, 1.0, -1.0);
+    scene.add(rimLight);
+
+    const flangePointLight = new THREE.PointLight(0xffffff, 1.4, 1.2);
+    flangePointLight.position.set(0, 0.20, 0);
+    scene.add(flangePointLight);
 
     // Root Anchor
     const workbenchAnchor = new THREE.Group();
@@ -891,114 +956,185 @@
     // --- 1. Workbench Mat Geometry ---
     const matGeo = new THREE.PlaneGeometry(1.0, 0.55);
     const matMat = new THREE.MeshStandardMaterial({
-      color: 0x181c24,
-      roughness: 0.85,
-      metalness: 0.1
+      color: 0x1a202c,
+      roughness: 0.8,
+      metalness: 0.15
     });
     const tableMat = new THREE.Mesh(matGeo, matMat);
     tableMat.rotation.x = -Math.PI / 2;
     tableMat.position.set(0, 0, 0);
     workbenchAnchor.add(tableMat);
 
-    // Tabletop Grid lines
-    const gridHelper = new THREE.GridHelper(1.0, 20, 0x00E5FF, 0x242b38);
+    // Tabletop Grid with visible cyan gridlines
+    const gridHelper = new THREE.GridHelper(1.0, 20, 0x00E5FF, 0x2d3748);
     gridHelper.position.set(0, 0.001, 0);
     workbenchAnchor.add(gridHelper);
 
-    // --- 2. LEFT ZONE: 1:1 FOD Tool Shadow Mat ---
+    // --- 2. LEFT ZONE: 1:1 FOD Tool Shadow Mat (Fix 2: Moved inward to X = -0.22m, Z = +0.04m) ---
     const leftZone = new THREE.Group();
-    leftZone.position.set(-0.34, 0.0, 0.0);
+    leftZone.position.set(-0.22, 0.0, 0.04);
     workbenchAnchor.add(leftZone);
 
-    // Milled foam shadow mat (160mm x 240mm)
-    const fodMatGeo = new THREE.BoxGeometry(0.16, 0.012, 0.24);
-    const fodMatMat = new THREE.MeshStandardMaterial({ color: 0x10141a, roughness: 0.9 });
-    const fodMatMesh = new THREE.Mesh(fodMatGeo, fodMatMat);
+    // Milled foam shadow mat with bright chamfered perimeter
+    const fodMatMesh = new THREE.Mesh(
+      new THREE.BoxGeometry(0.15, 0.012, 0.23),
+      new THREE.MeshStandardMaterial({ color: 0x161c24, roughness: 0.85, metalness: 0.2 })
+    );
     fodMatMesh.position.set(0, 0.006, 0);
     leftZone.add(fodMatMesh);
 
-    // Slot A Recessed pocket for Torque Wrench
+    // Bright border rim for the mat
+    const fodBorderGeo = new THREE.EdgesGeometry(new THREE.BoxGeometry(0.152, 0.013, 0.232));
+    const fodBorderMat = new THREE.LineBasicMaterial({ color: 0x00E5FF, transparent: true, opacity: 0.6 });
+    const fodBorder = new THREE.LineSegments(fodBorderGeo, fodBorderMat);
+    fodBorder.position.set(0, 0.006, 0);
+    leftZone.add(fodBorder);
+
+    // Slot A Recessed pocket for Torque Wrench (laser etched glow)
     const slotAWrenchPocket = new THREE.Mesh(
-      new THREE.BoxGeometry(0.034, 0.008, 0.21),
-      new THREE.MeshBasicMaterial({ color: 0x07090c })
+      new THREE.BoxGeometry(0.034, 0.009, 0.19),
+      new THREE.MeshBasicMaterial({ color: 0x06080b })
     );
-    slotAWrenchPocket.position.set(0.02, 0.011, 0);
+    slotAWrenchPocket.position.set(0.015, 0.011, 0);
     leftZone.add(slotAWrenchPocket);
+
+    // Slot A outline
+    const slotAEdge = new THREE.LineSegments(
+      new THREE.EdgesGeometry(new THREE.BoxGeometry(0.034, 0.009, 0.19)),
+      new THREE.LineBasicMaterial({ color: 0xFFB300, transparent: true, opacity: 0.75 })
+    );
+    slotAEdge.position.set(0.015, 0.011, 0);
+    leftZone.add(slotAEdge);
 
     // Slot B Recessed pocket for Rigging Pin
     const slotBPinPocket = new THREE.Mesh(
-      new THREE.BoxGeometry(0.01, 0.008, 0.08),
-      new THREE.MeshBasicMaterial({ color: 0x07090c })
+      new THREE.BoxGeometry(0.01, 0.009, 0.08),
+      new THREE.MeshBasicMaterial({ color: 0x06080b })
     );
     slotBPinPocket.position.set(-0.045, 0.011, 0.04);
     leftZone.add(slotBPinPocket);
 
-    // 3D Torque Wrench Model (in slot or in hand)
+    // Slot B outline
+    const slotBEdge = new THREE.LineSegments(
+      new THREE.EdgesGeometry(new THREE.BoxGeometry(0.01, 0.009, 0.08)),
+      new THREE.LineBasicMaterial({ color: 0x00E676, transparent: true, opacity: 0.75 })
+    );
+    slotBEdge.position.set(-0.045, 0.011, 0.04);
+    leftZone.add(slotBEdge);
+
+    // 3D Torque Wrench Model (Brighter chrome finish + Amber setting band)
     const wrenchGroup = new THREE.Group();
-    // Handle & shaft
+    // Chrome shaft
     const wrenchShaft = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.007, 0.007, 0.18, 16),
-      new THREE.MeshStandardMaterial({ color: 0x4a5568, metalness: 0.9, roughness: 0.2 })
+      new THREE.CylinderGeometry(0.007, 0.007, 0.16, 16),
+      new THREE.MeshStandardMaterial({ color: 0xD0D7DE, metalness: 0.95, roughness: 0.15 })
     );
     wrenchShaft.rotation.x = Math.PI / 2;
     wrenchGroup.add(wrenchShaft);
-    // Head & click drive
+
+    // Amber calibrated setting collar ring
+    const wrenchCollar = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.0076, 0.0076, 0.02, 16),
+      new THREE.MeshStandardMaterial({ color: 0xFFB300, metalness: 0.7, roughness: 0.2 })
+    );
+    wrenchCollar.rotation.x = Math.PI / 2;
+    wrenchCollar.position.set(0, 0, 0.03);
+    wrenchGroup.add(wrenchCollar);
+
+    // Chrome ratchet drive head
     const wrenchHead = new THREE.Mesh(
       new THREE.BoxGeometry(0.026, 0.016, 0.032),
-      new THREE.MeshStandardMaterial({ color: 0x2d3748, metalness: 0.8, roughness: 0.3 })
+      new THREE.MeshStandardMaterial({ color: 0x8C95A5, metalness: 0.9, roughness: 0.2 })
     );
-    wrenchHead.position.set(0, 0.005, -0.09);
+    wrenchHead.position.set(0, 0.006, -0.08);
     wrenchGroup.add(wrenchHead);
-    wrenchGroup.position.set(0.02, 0.014, 0);
+    wrenchGroup.position.set(0.015, 0.015, 0);
     leftZone.add(wrenchGroup);
 
-    // Rigging Pin 3D model (always in slot)
+    // Rigging Pin Model (Bright surgical stainless steel)
     const pinMesh = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.003, 0.003, 0.076, 12),
-      new THREE.MeshStandardMaterial({ color: 0xCBD5E0, metalness: 0.95, roughness: 0.1 })
+      new THREE.CylinderGeometry(0.0035, 0.0035, 0.076, 12),
+      new THREE.MeshStandardMaterial({ color: 0xF0F4F8, metalness: 0.98, roughness: 0.08 })
     );
     pinMesh.rotation.x = Math.PI / 2;
-    pinMesh.position.set(-0.045, 0.012, 0.04);
+    pinMesh.position.set(-0.045, 0.014, 0.04);
     leftZone.add(pinMesh);
 
-    // --- 3. CENTER ZONE: 4-Bolt Propulsion Flange Mount ---
+    // --- 3. CENTER ZONE: 4-Bolt Propulsion Flange Mount (Brighter CNC Aluminum + Micro-Tags) ---
     const centerZone = new THREE.Group();
     centerZone.position.set(0, 0, 0);
     workbenchAnchor.add(centerZone);
 
-    // CNC 6061-T6 Aluminum Flange (140mm x 140mm x 25mm)
+    // CNC 6061-T6 Aluminum Flange (Brighter metallic silver/aluminum)
     const flangeMesh = new THREE.Mesh(
       new THREE.BoxGeometry(0.14, 0.025, 0.14),
-      new THREE.MeshStandardMaterial({ color: 0x2B313B, metalness: 0.8, roughness: 0.3 })
+      new THREE.MeshStandardMaterial({ color: 0x94A3B8, metalness: 0.88, roughness: 0.22 })
     );
     flangeMesh.position.set(0, 0.0125, 0);
     centerZone.add(flangeMesh);
 
-    // Center Motor Shaft
+    // Flange edge bevel highlight
+    const flangeEdges = new THREE.LineSegments(
+      new THREE.EdgesGeometry(new THREE.BoxGeometry(0.14, 0.025, 0.14)),
+      new THREE.LineBasicMaterial({ color: 0x00E5FF, transparent: true, opacity: 0.5 })
+    );
+    flangeEdges.position.set(0, 0.0125, 0);
+    centerZone.add(flangeEdges);
+
+    // Center Motor Hub
     const shaftMesh = new THREE.Mesh(
       new THREE.CylinderGeometry(0.022, 0.022, 0.038, 24),
-      new THREE.MeshStandardMaterial({ color: 0x1A202C, metalness: 0.9, roughness: 0.2 })
+      new THREE.MeshStandardMaterial({ color: 0x2A3240, metalness: 0.92, roughness: 0.2 })
     );
     shaftMesh.position.set(0, 0.025, 0);
     centerZone.add(shaftMesh);
 
-    // 4 Bolt Bosses & Collar Rings
+    // 4 Bolt Bosses, Collars, and Engraved Micro-Tags
     const boltMeshes = [];
     const collarMeshes = [];
 
-    BOLTS.forEach((b, idx) => {
-      // Cylindrical Boss
+    // Helper to generate bright 3D micro-tag sprite
+    function createMicroTagSprite(text) {
+      const tagCanvas = document.createElement('canvas');
+      tagCanvas.width = 128;
+      tagCanvas.height = 48;
+      const ctx = tagCanvas.getContext('2d');
+      ctx.fillStyle = 'rgba(10, 16, 24, 0.88)';
+      ctx.fillRect(0, 0, 128, 48);
+      ctx.strokeStyle = '#00E5FF';
+      ctx.lineWidth = 3;
+      ctx.strokeRect(2, 2, 124, 44);
+      ctx.font = 'bold 24px -apple-system, sans-serif';
+      ctx.fillStyle = '#00E5FF';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(text, 64, 24);
+
+      const texture = new THREE.CanvasTexture(tagCanvas);
+      const spriteMat = new THREE.SpriteMaterial({ map: texture, transparent: true });
+      const sprite = new THREE.Sprite(spriteMat);
+      sprite.scale.set(0.036, 0.014, 1);
+      return sprite;
+    }
+
+    BOLTS.forEach((b) => {
+      // Cylindrical Boss (Bright stainless)
       const boss = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.009, 0.009, 0.012, 16),
-        new THREE.MeshStandardMaterial({ color: 0x718096, metalness: 0.7, roughness: 0.3 })
+        new THREE.CylinderGeometry(0.009, 0.009, 0.014, 16),
+        new THREE.MeshStandardMaterial({ color: 0xE2E8F0, metalness: 0.92, roughness: 0.18 })
       );
       boss.position.copy(b.pos);
       centerZone.add(boss);
       boltMeshes.push(boss);
 
-      // Flush Emerald Collar Ring (Y = +0.026m) for locked state
+      // Engraved Micro-Tag sprite on metal flange
+      const tagSprite = createMicroTagSprite(b.label);
+      tagSprite.position.set(b.pos.x * 0.72, 0.027, b.pos.z * 0.72);
+      centerZone.add(tagSprite);
+
+      // Flush Emerald Collar Ring (Y = +0.026m)
       const collar = new THREE.Mesh(
-        new THREE.TorusGeometry(0.014, 0.002, 8, 24),
+        new THREE.TorusGeometry(0.014, 0.0025, 8, 24),
         new THREE.MeshBasicMaterial({ color: 0x00E676 })
       );
       collar.rotation.x = Math.PI / 2;
@@ -1010,29 +1146,39 @@
 
     // Active Bolt 3D Torque Halo Ring (Cyan Torus)
     const activeTorqueHalo = new THREE.Mesh(
-      new THREE.TorusGeometry(0.018, 0.0025, 12, 32),
+      new THREE.TorusGeometry(0.018, 0.0028, 12, 32),
       new THREE.MeshBasicMaterial({ color: 0x00E5FF })
     );
     activeTorqueHalo.rotation.x = Math.PI / 2;
     centerZone.add(activeTorqueHalo);
 
+    // Dedicated 3D Vertical Leader Line (Fix 3: Terminates cleanly at bottom edge of badge!)
+    const leaderLineGeo = new THREE.BufferGeometry();
+    const leaderLineMat = new THREE.LineBasicMaterial({
+      color: 0x00E5FF,
+      linewidth: 2,
+      transparent: true,
+      opacity: 0.9
+    });
+    const leaderLine = new THREE.Line(leaderLineGeo, leaderLineMat);
+    leaderLine.visible = false;
+    centerZone.add(leaderLine);
+
     // Poka-Yoke Crimson 3D Octagonal Interlock Ring
     const pokaYokeRing = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.022, 0.022, 0.003, 8, 1, true),
+      new THREE.CylinderGeometry(0.022, 0.022, 0.004, 8, 1, true),
       new THREE.MeshBasicMaterial({ color: 0xFF1744, side: THREE.DoubleSide })
     );
     pokaYokeRing.position.set(0.085, 0.030, -0.085); // Bolt 2 NE
     pokaYokeRing.visible = false;
     centerZone.add(pokaYokeRing);
 
-    // 3D Parabolic Vector Spline Arc & Chevrons
-    const arcCurvePoints = [];
+    // 3D Parabolic Vector Spline Arc & Animated Chevrons
     const arcGeo = new THREE.BufferGeometry();
     const arcMat = new THREE.LineBasicMaterial({ color: 0x00E5FF, linewidth: 2 });
     const arcLine = new THREE.Line(arcGeo, arcMat);
     centerZone.add(arcLine);
 
-    // Chevron indicators along spline
     const chevrons = [];
     for (let i = 0; i < 3; i++) {
       const ch = new THREE.Mesh(
@@ -1044,22 +1190,30 @@
       chevrons.push(ch);
     }
 
-    // --- 4. RIGHT ZONE: Articulated Flap & 1:1 Optical Protractor ---
+    // --- 4. RIGHT ZONE: Articulated Flap & 1:1 Optical Protractor (Fix 2: Inward to X = +0.22m) ---
     const rightZone = new THREE.Group();
-    rightZone.position.set(0.34, 0.0, 0.0);
+    rightZone.position.set(0.22, 0.0, 0.0);
     workbenchAnchor.add(rightZone);
 
-    // UAV Carbon-Fiber Pitch Flap
+    // UAV Carbon-Fiber Pitch Flap with bright trailing edge trim
     const flapPivot = new THREE.Group();
     flapPivot.position.set(0, 0.03, 0);
     rightZone.add(flapPivot);
 
     const flapMesh = new THREE.Mesh(
-      new THREE.BoxGeometry(0.12, 0.005, 0.08),
-      new THREE.MeshStandardMaterial({ color: 0x1A202C, roughness: 0.4 })
+      new THREE.BoxGeometry(0.12, 0.006, 0.08),
+      new THREE.MeshStandardMaterial({ color: 0x222A36, roughness: 0.35, metalness: 0.3 })
     );
     flapMesh.position.set(0, 0, 0.04);
     flapPivot.add(flapMesh);
+
+    // White/cyan aerodynamic trailing edge stripe
+    const flapTrim = new THREE.Mesh(
+      new THREE.BoxGeometry(0.12, 0.007, 0.008),
+      new THREE.MeshBasicMaterial({ color: 0x00E5FF })
+    );
+    flapTrim.position.set(0, 0, 0.08);
+    flapPivot.add(flapTrim);
 
     // 1:1 Scale Optical Protractor Arc (R = 120mm, -15° to +15°)
     const protractorGroup = new THREE.Group();
@@ -1067,7 +1221,7 @@
     protractorGroup.visible = false;
     rightZone.add(protractorGroup);
 
-    // Vernier Arc Ring Segment
+    // Glowing Vernier Arc Line
     const arcRadius = 0.12;
     const arcPts = [];
     for (let deg = -15; deg <= 15; deg += 0.5) {
@@ -1080,16 +1234,31 @@
     );
     protractorGroup.add(protractorArcLine);
 
-    // Dual-Ring Optical Sightline Reticle (Front r=12mm at Z=0.04m, Rear r=6mm at Z=0.0m)
+    // Vernier Tick Marks
+    for (let deg = -15; deg <= 15; deg += 2) {
+      const rad = (deg * Math.PI) / 180;
+      const isMajor = deg === -15 || deg === 0 || deg === 15;
+      const tickLen = isMajor ? 0.012 : 0.006;
+      const p1 = new THREE.Vector3(Math.sin(rad) * arcRadius, Math.cos(rad) * arcRadius - arcRadius, 0.08);
+      const p2 = new THREE.Vector3(Math.sin(rad) * (arcRadius + tickLen), Math.cos(rad) * (arcRadius + tickLen) - arcRadius, 0.08);
+
+      const tickLine = new THREE.Line(
+        new THREE.BufferGeometry().setFromPoints([p1, p2]),
+        new THREE.MeshBasicMaterial({ color: isMajor ? 0x00E676 : 0x8892B0 })
+      );
+      protractorGroup.add(tickLine);
+    }
+
+    // Dual-Ring Optical Sightline Reticle
     const reticleFront = new THREE.Mesh(
-      new THREE.RingGeometry(0.011, 0.012, 32),
+      new THREE.RingGeometry(0.011, 0.013, 32),
       new THREE.MeshBasicMaterial({ color: 0x00E676, side: THREE.DoubleSide })
     );
     reticleFront.position.set(0, 0.031, 0.06);
     protractorGroup.add(reticleFront);
 
     const reticleRear = new THREE.Mesh(
-      new THREE.RingGeometry(0.005, 0.006, 32),
+      new THREE.RingGeometry(0.005, 0.007, 32),
       new THREE.MeshBasicMaterial({ color: 0x00E5FF, side: THREE.DoubleSide })
     );
     reticleRear.position.set(0, 0.031, 0.02);
@@ -1103,40 +1272,33 @@
     const jointGeo = new THREE.SphereGeometry(0.004, 8, 8);
     const jointMat = new THREE.MeshBasicMaterial({ color: 0x00E5FF });
 
-    // Build 21 joints
     for (let j = 0; j < 21; j++) {
       const jMesh = new THREE.Mesh(jointGeo, jointMat);
       handGroup.add(jMesh);
       handJoints.push(jMesh);
     }
 
-    // Default resting hand pose near active bolt
     function updateHandPose(isPinching = false, targetPos = new THREE.Vector3(-0.085, 0.05, -0.085)) {
       const thumbTipDist = isPinching ? 0.008 : 0.035;
       handGroup.position.set(targetPos.x + 0.04, targetPos.y + 0.02, targetPos.z + 0.04);
 
-      // Wrist
       handJoints[0].position.set(0.04, 0.03, 0.05);
-
-      // Thumb
       handJoints[1].position.set(0.02, 0.02, 0.03);
       handJoints[2].position.set(0.01, 0.01, 0.02);
       handJoints[3].position.set(0.005, 0.005, 0.01);
-      handJoints[4].position.set(0, 0, thumbTipDist / 2); // Thumb tip
+      handJoints[4].position.set(0, 0, thumbTipDist / 2);
 
-      // Index
       handJoints[5].position.set(0.01, 0.02, 0.01);
       handJoints[6].position.set(0.005, 0.015, 0.005);
       handJoints[7].position.set(0.002, 0.008, 0.002);
-      handJoints[8].position.set(0, 0, -thumbTipDist / 2); // Index tip
+      handJoints[8].position.set(0, 0, -thumbTipDist / 2);
 
-      // Other fingers folded slightly back
       for (let f = 9; f < 21; f++) {
         handJoints[f].position.set(0.02 + (f % 3) * 0.008, 0.015, -0.01 - (f - 9) * 0.004);
       }
     }
 
-    // --- 2D Screen-Space Projection Math ---
+    // --- Projection & Universal Screen Clamping Math (Fix 2: Never outside borders) ---
     function worldToScreen(worldVec) {
       const v = worldVec.clone().project(camera);
       const halfWidth = container.clientWidth / 2;
@@ -1148,24 +1310,58 @@
       };
     }
 
+    // Clamps label coordinates so no badge ever renders outside [28px, canvasWidth - 28px]
+    // or [76px, canvasHeight - 88px]
+    function clampAndPositionBadge(el, rawX, rawY, anchorType) {
+      const rect = el.getBoundingClientRect();
+      const w = rect.width || 240;
+      const h = rect.height || 45;
+
+      const minX = 28;
+      const maxX = container.clientWidth - 28;
+      const minY = 76;
+      const maxY = container.clientHeight - 88;
+
+      let posX = rawX;
+      let posY = rawY;
+
+      if (anchorType === 'center-bottom') {
+        // translate(-50%, -100%) -> visual X is [posX - w/2, posX + w/2], visual Y is [posY - h, posY]
+        posX = Math.max(minX + w / 2, Math.min(maxX - w / 2, posX));
+        posY = Math.max(minY + h, Math.min(maxY, posY));
+      } else if (anchorType === 'center-center') {
+        // translate(-50%, -50%)
+        posX = Math.max(minX + w / 2, Math.min(maxX - w / 2, posX));
+        posY = Math.max(minY + h / 2, Math.min(maxY - h / 2, posY));
+      } else if (anchorType === 'center-top') {
+        // translate(-50%, 0)
+        posX = Math.max(minX + w / 2, Math.min(maxX - w / 2, posX));
+        posY = Math.max(minY, Math.min(maxY - h, posY));
+      }
+
+      el.style.left = `${Math.round(posX)}px`;
+      el.style.top = `${Math.round(posY)}px`;
+    }
+
     // --- State Update Handler ---
     function renderState(stateIndex) {
       currentState = stateIndex;
 
-      // Update state pills
+      // Update state switcher pills
       document.querySelectorAll('.state-pill').forEach((pill, idx) => {
         pill.classList.toggle('active', idx === stateIndex);
       });
 
       // Reset components
       activeTorqueHalo.visible = false;
+      leaderLine.visible = false;
       pokaYokeRing.visible = false;
       arcLine.visible = false;
       chevrons.forEach(c => c.visible = false);
       collarMeshes.forEach(c => c.visible = false);
       protractorGroup.visible = false;
 
-      // Elements
+      // DOM Elements
       const activeBadge = document.getElementById('activeBoltBadge');
       const activeBadgeBox = document.getElementById('activeBoltBox');
       const activeBadgeText = document.getElementById('activeBoltText');
@@ -1175,7 +1371,7 @@
       const rearTitle = document.getElementById('rearHeaderTitle');
       const rearSub = document.getElementById('rearHeaderSub');
 
-      // Inspector DOM elements
+      // Inspector Elements
       const preloadVal = document.getElementById('preloadSymmetryVal');
       const preloadBar = document.getElementById('preloadBar');
       const pokaYokeVal = document.getElementById('pokaYokeStatusVal');
@@ -1184,9 +1380,9 @@
       const fodCompVal = document.getElementById('fodComplianceVal');
       const hashVal = document.getElementById('auditHashVal');
 
-      // Wrench in hand unless State 6
+      // Wrench position based on state
       if (stateIndex === 6) {
-        wrenchGroup.position.set(0.02, 0.014, 0); // Stowed in slot
+        wrenchGroup.position.set(0.015, 0.015, 0); // Stowed in slot
         fodBanner.classList.add('stowed');
         fodBanner.innerText = 'FOD SHADOW MAT: ALL TOOLS STOWED — ZERO FOD';
         slotAVal.innerText = 'STOWED (SLOT A)';
@@ -1194,7 +1390,7 @@
         fodCompVal.innerText = '100% COMPLIANT (ZERO FOD)';
         fodCompVal.style.color = 'var(--accent-emerald)';
       } else {
-        wrenchGroup.position.set(0.02, 0.05, 0.08); // In hand
+        wrenchGroup.position.set(0.015, 0.045, 0.08); // In hand
         fodBanner.classList.remove('stowed');
         fodBanner.innerText = 'FOD SHADOW MAT: WRENCH IN HAND (ACTIVE MRO)';
         slotAVal.innerText = 'IN HAND';
@@ -1203,9 +1399,8 @@
         fodCompVal.style.color = 'var(--accent-amber)';
       }
 
-      // States Logic
+      // Operational States
       if (stateIndex === 0) {
-        // Bolt 1 Target (NW)
         activeTorqueHalo.visible = true;
         activeTorqueHalo.position.set(-0.085, 0.028, -0.085);
 
@@ -1213,6 +1408,7 @@
         activeBadgeBox.className = 'spatial-badge-box';
         activeBadgeText.innerText = 'BOLT #1 [NW] | TARGET: 12.5 N·m | STAR SEQ 1/4';
 
+        updateLeaderLine(BOLTS[0].pos);
         buildSplineArc(BOLTS[0].pos, BOLTS[1].pos); // 1 -> 4
         updateHandPose(false, BOLTS[0].pos);
 
@@ -1241,8 +1437,9 @@
         activeBadgeBox.className = 'spatial-badge-box badge-poka-yoke';
         activeBadgeText.innerText = 'OUT-OF-SEQUENCE BLOCKED: FLANGE WARP RISK -> STAR ARC TO BOLT #4';
 
+        updateLeaderLine(BOLTS[2].pos);
         buildSplineArc(BOLTS[0].pos, BOLTS[1].pos);
-        updateHandPose(false, BOLTS[2].pos); // Hand near Bolt 2
+        updateHandPose(false, BOLTS[2].pos);
 
         pokaYokeVal.innerText = 'BLOCKED: WARP RISK (BOLT #2)';
         pokaYokeVal.style.color = 'var(--accent-crimson)';
@@ -1250,7 +1447,6 @@
         logMessage('WARN', 'POKA-YOKE INTERLOCK ENGAGED: Adjacent Bolt #2 probed out of sequence. Flange warp blocked.');
       }
       else if (stateIndex === 2) {
-        // Bolt 1 Locked -> Bolt 4 Target (SE)
         collarMeshes[0].visible = true; // Bolt 1 locked
 
         activeTorqueHalo.visible = true;
@@ -1260,6 +1456,7 @@
         activeBadgeBox.className = 'spatial-badge-box';
         activeBadgeText.innerText = 'BOLT #4 [SE] | TARGET: 12.5 N·m | STAR SEQ 2/4';
 
+        updateLeaderLine(BOLTS[1].pos);
         buildSplineArc(BOLTS[1].pos, BOLTS[2].pos); // 4 -> 2
         updateHandPose(true, BOLTS[1].pos);
 
@@ -1271,7 +1468,6 @@
         logMessage('SIK', 'Bolt #1 locked at 12.5 N·m. Preload symmetry: 25%. Cross-star diagonal to Bolt #4.');
       }
       else if (stateIndex === 3) {
-        // Bolt 1, 4 Locked -> Bolt 2 Target (NE)
         collarMeshes[0].visible = true;
         collarMeshes[1].visible = true;
 
@@ -1282,6 +1478,7 @@
         activeBadgeBox.className = 'spatial-badge-box';
         activeBadgeText.innerText = 'BOLT #2 [NE] | TARGET: 12.5 N·m | STAR SEQ 3/4';
 
+        updateLeaderLine(BOLTS[2].pos);
         buildSplineArc(BOLTS[2].pos, BOLTS[3].pos); // 2 -> 3
         updateHandPose(true, BOLTS[2].pos);
 
@@ -1291,7 +1488,6 @@
         logMessage('SIK', 'Bolt #4 locked at 12.5 N·m. Preload symmetry: 50%. Proceed to Bolt #2.');
       }
       else if (stateIndex === 4) {
-        // Bolt 1, 4, 2 Locked -> Bolt 3 Target (SW)
         collarMeshes[0].visible = true;
         collarMeshes[1].visible = true;
         collarMeshes[2].visible = true;
@@ -1303,6 +1499,7 @@
         activeBadgeBox.className = 'spatial-badge-box';
         activeBadgeText.innerText = 'BOLT #3 [SW] | TARGET: 12.5 N·m | STAR SEQ 4/4 (FINAL)';
 
+        updateLeaderLine(BOLTS[3].pos);
         updateHandPose(true, BOLTS[3].pos);
 
         preloadVal.innerText = '75%';
@@ -1311,20 +1508,19 @@
         logMessage('SIK', 'Bolt #2 locked at 12.5 N·m. Preload symmetry: 75%. Final fastener: Bolt #3.');
       }
       else if (stateIndex === 5) {
-        // All 4 Locked -> Stage 2: 1:1 Optical Protractor & +15.0° Deflection
         collarMeshes.forEach(c => c.visible = true);
-        activeBadge.style.display = 'none'; // Retract center badge! Single-Active Rule
+        activeBadge.style.display = 'none'; // Retract center badge!
+        leaderLine.visible = false;
 
         protractorGroup.visible = true;
         protractorBadge.style.display = 'block';
 
-        // Sweep flap to +15.0°
         flapPivot.rotation.x = (15.0 * Math.PI) / 180;
         flapAngleVal.innerText = '+15.0° (VERIFIED)';
         preloadVal.innerText = '100%';
         preloadBar.style.width = '100%';
 
-        updateHandPose(false, new THREE.Vector3(0.34, 0.05, 0.04));
+        updateHandPose(false, new THREE.Vector3(0.22, 0.05, 0.04));
 
         rearBadge.className = 'rear-header-banner';
         rearTitle.innerText = 'STAGE 2/3: 1:1 OPTICAL DEFLECTION PROTRACTOR';
@@ -1333,9 +1529,9 @@
         logMessage('LEAF', 'Stage 2 Verified: Flap deflection +15.0° within ±0.08° tolerance. Parallax eliminated.');
       }
       else if (stateIndex === 6) {
-        // Stage 3: Tools Stowed & Airworthy MRO Stamp
         collarMeshes.forEach(c => c.visible = true);
         activeBadge.style.display = 'none';
+        leaderLine.visible = false;
         protractorBadge.style.display = 'none';
 
         rearBadge.className = 'rear-header-banner airworthy-stamp-3d';
@@ -1353,6 +1549,14 @@
       updateBadgePositions();
     }
 
+    // Update 3D leader line cleanly from bolt to badge bottom (Fix 3: Never overshoots)
+    function updateLeaderLine(boltPos) {
+      leaderLine.visible = true;
+      const start = new THREE.Vector3(boltPos.x, 0.025, boltPos.z);
+      const end = new THREE.Vector3(boltPos.x, 0.142, boltPos.z);
+      leaderLine.geometry.setFromPoints([start, end]);
+    }
+
     // Build Parabolic Spline Arc between p0 and p1
     function buildSplineArc(p0, p1) {
       arcLine.visible = true;
@@ -1368,7 +1572,6 @@
       const points = curve.getPoints(24);
       arcLine.geometry.setFromPoints(points);
 
-      // Place chevrons
       for (let i = 0; i < 3; i++) {
         const t = (i + 1) / 4;
         const pt = curve.getPoint(t);
@@ -1378,55 +1581,50 @@
       }
     }
 
-    // Update 2D Screen-space Positions for Badges
+    // Update 2D Screen-space Positions with Universal Clamping (Fix 1 & 2)
     function updateBadgePositions() {
-      // 1. Rear Header (X=0.0, Y=0.23, Z=-0.19)
-      const rearWorld = new THREE.Vector3(0.0, 0.23, -0.19);
+      // 1. Rear Header / Stamp: Anchored cleanly in upper 3D scene
+      const rearWorld = new THREE.Vector3(0.0, 0.19, -0.17);
       const rearScreen = worldToScreen(rearWorld);
       const rearBadge = document.getElementById('rearHeaderBadge');
       if (rearScreen.inFront) {
-        rearBadge.style.left = `${rearScreen.x}px`;
-        rearBadge.style.top = `${rearScreen.y}px`;
+        clampAndPositionBadge(rearBadge, rearScreen.x, Math.max(90, rearScreen.y), 'center-center');
       }
 
-      // 2. Left Zone FOD Status (X=-0.34, Y=0.012, Z=0.135)
-      const fodWorld = new THREE.Vector3(-0.34, 0.012, 0.135);
+      // 2. Left Zone FOD Status: Anchored to Left Zone front edge (X = -0.22m)
+      const fodWorld = new THREE.Vector3(-0.22, 0.012, 0.165);
       const fodScreen = worldToScreen(fodWorld);
       const fodBadge = document.getElementById('fodStatusBadge');
       if (fodScreen.inFront) {
-        fodBadge.style.left = `${fodScreen.x}px`;
-        fodBadge.style.top = `${fodScreen.y}px`;
+        clampAndPositionBadge(fodBadge, fodScreen.x, fodScreen.y, 'center-top');
       }
 
-      // 3. Center Active Bolt Badge
+      // 3. Center Active Bolt Badge: Sits directly at leader line apex Y = 0.142m
       const activeBadge = document.getElementById('activeBoltBadge');
       if (activeBadge.style.display !== 'none') {
         let boltPos = BOLTS[0].pos;
-        if (currentState === 1) boltPos = BOLTS[2].pos; // Show warning over Bolt 2
+        if (currentState === 1) boltPos = BOLTS[2].pos;
         else if (currentState === 2) boltPos = BOLTS[1].pos;
         else if (currentState === 3) boltPos = BOLTS[2].pos;
         else if (currentState === 4) boltPos = BOLTS[3].pos;
 
-        const badgeWorld = new THREE.Vector3(boltPos.x, 0.165, boltPos.z);
+        const badgeWorld = new THREE.Vector3(boltPos.x, 0.142, boltPos.z);
         const screen = worldToScreen(badgeWorld);
         if (screen.inFront) {
-          activeBadge.style.left = `${screen.x}px`;
-          activeBadge.style.top = `${screen.y}px`;
+          clampAndPositionBadge(activeBadge, screen.x, screen.y, 'center-bottom');
         }
       }
 
-      // 4. Right Zone Protractor Badge
+      // 4. Right Zone Protractor Badge: Sits above protractor arc
       const protractorBadge = document.getElementById('protractorBadge');
       if (protractorBadge.style.display !== 'none') {
-        const protWorld = new THREE.Vector3(0.34, 0.165, 0.04);
+        const protWorld = new THREE.Vector3(0.22, 0.142, 0.04);
         const screen = worldToScreen(protWorld);
         if (screen.inFront) {
-          protractorBadge.style.left = `${screen.x}px`;
-          protractorBadge.style.top = `${screen.y}px`;
+          clampAndPositionBadge(protractorBadge, screen.x, screen.y, 'center-bottom');
         }
       }
 
-      // Update Overlap Bounding Boxes if active
       if (showBoundingBoxes) {
         updateBoundingBoxVisuals();
       }
@@ -1455,7 +1653,7 @@
     // --- Interactive Control Bindings ---
     document.getElementById('btnPinch').addEventListener('click', () => {
       if (currentState === 1) {
-        renderState(2); // Clear poka yoke error and advance
+        renderState(2);
       } else {
         renderState((currentState + 1) % 7);
       }
@@ -1518,7 +1716,6 @@
       }
     });
 
-    // Handle Window Resizing
     window.addEventListener('resize', () => {
       camera.aspect = container.clientWidth / container.clientHeight;
       camera.updateProjectionMatrix();
@@ -1551,7 +1748,7 @@
       });
     }
 
-    // Animation Render Loop (Solid 60 FPS)
+    // Animation Loop (60 FPS)
     let lastTime = performance.now();
     let frameCount = 0;
     const fpsDisplay = document.getElementById('fpsDisplay');
@@ -1559,12 +1756,10 @@
     function animate(time) {
       requestAnimationFrame(animate);
 
-      // Rotate torque halo slowly
       if (activeTorqueHalo.visible) {
         activeTorqueHalo.rotation.z += 0.02;
       }
 
-      // FPS tracking
       frameCount++;
       if (time - lastTime >= 1000) {
         fpsDisplay.innerText = `${frameCount}.0 FPS`;
@@ -1580,23 +1775,36 @@
     renderState(0);
     requestAnimationFrame(animate);
 
-    // Expose controller API for automated Playwright testing
+    // API for Automated Verification
     window.__AeroTorque = {
       setState: renderState,
       getState: () => currentState,
+      getCanvasMetrics: () => {
+        const rect = container.getBoundingClientRect();
+        return {
+          left: rect.left,
+          top: rect.top,
+          right: rect.right,
+          bottom: rect.bottom,
+          width: rect.width,
+          height: rect.height,
+        };
+      },
       getVisibleBoundingBoxes: () => {
         const badgeIds = ['rear-header', 'fod-status', 'center-active-bolt', 'right-protractor-badge'];
         const boxes = [];
+        const parentRect = container.getBoundingClientRect();
         badgeIds.forEach(id => {
           const el = document.querySelector(`[data-spatial-id="${id}"]`);
           if (el && el.style.display !== 'none' && el.offsetHeight > 0) {
             const rect = el.getBoundingClientRect();
             boxes.push({
               id,
-              left: rect.left,
-              top: rect.top,
-              right: rect.right,
-              bottom: rect.bottom,
+              // Return coordinates relative to the canvas container
+              left: rect.left - parentRect.left,
+              top: rect.top - parentRect.top,
+              right: rect.right - parentRect.left,
+              bottom: rect.bottom - parentRect.top,
               width: rect.width,
               height: rect.height
             });

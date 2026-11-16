@@ -21,14 +21,14 @@ const STATE_NAMES = [
 
 async function runZeroOverlapAudit() {
   console.log('================================================================');
-  console.log('🚀 AERO-TORQUE SPATIAL: AUTOMATED ZERO-OVERLAP BOUNDING BOX AUDIT');
+  console.log('🚀 AERO-TORQUE SPATIAL: ENHANCED ZERO-OVERLAP & BOUNDARY AUDIT');
   console.log('================================================================\n');
 
   if (!fs.existsSync(screenshotsDir)) {
     fs.mkdirSync(screenshotsDir, { recursive: true });
   }
 
-  const PORT = 8085;
+  const PORT = 8089;
   const server = await createServer(PORT);
 
   const browser = await chromium.launch({
@@ -50,6 +50,7 @@ async function runZeroOverlapAudit() {
   await page.waitForTimeout(1000); // Allow initial Three.js render frame to settle
 
   let totalCollisions = 0;
+  let totalBoundaryViolations = 0;
   const auditResults = [];
 
   for (let s = 0; s <= 6; s++) {
@@ -63,21 +64,67 @@ async function runZeroOverlapAudit() {
     }, s);
 
     // Wait for projection updates
-    await page.waitForTimeout(300);
+    await page.waitForTimeout(350);
 
-    // Extract visible bounding boxes
-    const boxes = await page.evaluate(() => {
-      return window.__AeroTorque.getVisibleBoundingBoxes();
+    // Extract visible bounding boxes and canvas metrics
+    const { boxes, canvasMetrics } = await page.evaluate(() => {
+      return {
+        boxes: window.__AeroTorque.getVisibleBoundingBoxes(),
+        canvasMetrics: window.__AeroTorque.getCanvasMetrics(),
+      };
     });
 
+    console.log(`  Canvas Dimensions: ${Math.round(canvasMetrics.width)}x${Math.round(canvasMetrics.height)} px`);
     console.log(`  Visible Spatial Badges: ${boxes.length}`);
+
+    // 1. Check Boundary & Dock Clearance for each badge
     boxes.forEach((b) => {
       console.log(
-        `    - [${b.id}]: pos=(${Math.round(b.left)}, ${Math.round(b.top)}) size=${Math.round(b.width)}x${Math.round(b.height)}`
+        `    - [${b.id}]: bounds=[L:${Math.round(b.left)}, R:${Math.round(b.right)}, T:${Math.round(b.top)}, B:${Math.round(b.bottom)}] size=${Math.round(b.width)}x${Math.round(b.height)}`
       );
+
+      // Check left border: b.left >= 28
+      if (b.left < 28) {
+        totalBoundaryViolations++;
+        console.error(`  ❌ BOUNDARY VIOLATION: [${b.id}] clipped on left border! (left=${Math.round(b.left)} < 28px)`);
+      } else {
+        console.log(`      ✓ Left margin: ${Math.round(b.left)}px >= 28px [SAFE]`);
+      }
+
+      // Check right border: b.right <= canvasMetrics.width - 28
+      const maxAllowedRight = canvasMetrics.width - 28;
+      if (b.right > maxAllowedRight) {
+        totalBoundaryViolations++;
+        console.error(
+          `  ❌ BOUNDARY VIOLATION: [${b.id}] clipped on right border! (right=${Math.round(b.right)} > ${Math.round(maxAllowedRight)}px)`
+        );
+      } else {
+        console.log(`      ✓ Right margin: ${Math.round(canvasMetrics.width - b.right)}px >= 28px [SAFE]`);
+      }
+
+      // Check top border / step dock: b.top >= 76
+      if (b.top < 76) {
+        totalBoundaryViolations++;
+        console.error(
+          `  ❌ TOP DOCK OVERLAP: [${b.id}] overlaps top step switcher dock! (top=${Math.round(b.top)} < 76px)`
+        );
+      } else {
+        console.log(`      ✓ Top step-dock clearance: ${Math.round(b.top)}px >= 76px [SAFE]`);
+      }
+
+      // Check bottom border / control dock: b.bottom <= canvasMetrics.height - 88
+      const maxAllowedBottom = canvasMetrics.height - 88;
+      if (b.bottom > maxAllowedBottom) {
+        totalBoundaryViolations++;
+        console.error(
+          `  ❌ BOTTOM DOCK OVERLAP: [${b.id}] overlaps bottom control dock! (bottom=${Math.round(b.bottom)} > ${Math.round(maxAllowedBottom)}px)`
+        );
+      } else {
+        console.log(`      ✓ Bottom control-dock clearance: ${Math.round(canvasMetrics.height - b.bottom)}px >= 88px [SAFE]`);
+      }
     });
 
-    // Check pairwise collisions
+    // 2. Check pairwise collisions between visible badges
     let stateCollisions = 0;
     const pairwiseDetails = [];
 
@@ -90,7 +137,6 @@ async function runZeroOverlapAudit() {
         const overlapHeight = Math.max(0, Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top));
         const overlapArea = overlapWidth * overlapHeight;
 
-        // Calculate minimum margin if not overlapping
         const dx = Math.max(0, Math.max(a.left, b.left) - Math.min(a.right, b.right));
         const dy = Math.max(0, Math.max(a.top, b.top) - Math.min(a.bottom, b.bottom));
         const marginPx = Math.round(Math.hypot(dx, dy));
@@ -99,7 +145,7 @@ async function runZeroOverlapAudit() {
           stateCollisions++;
           totalCollisions++;
           console.error(
-            `  ❌ COLLISION DETECTED between [${a.id}] and [${b.id}]! Overlap: ${Math.round(overlapArea)} px²`
+            `  ❌ PAIRWISE COLLISION: [${a.id}] <-> [${b.id}] overlap: ${Math.round(overlapArea)} px²!`
           );
         } else {
           console.log(`  ✓ Pair [${a.id}] <-> [${b.id}]: 0px overlap (Clearance margin: ${marginPx}px)`);
@@ -109,7 +155,7 @@ async function runZeroOverlapAudit() {
       }
     }
 
-    // Capture 1920x1080 screenshot
+    // 3. Capture high-resolution 1920x1080 screenshot
     const screenshotPath = path.join(screenshotsDir, `${stateFileName}.png`);
     await page.screenshot({ path: screenshotPath, fullPage: false });
     console.log(`  📸 Screenshot saved: screenshots/${stateFileName}.png`);
@@ -134,14 +180,15 @@ async function runZeroOverlapAudit() {
     console.log(`State ${r.state} [${r.name}]: ${status}`);
   });
   console.log('----------------------------------------------------------------');
-  console.log(`TOTAL BOUNDING BOX COLLISIONS: ${totalCollisions}`);
+  console.log(`TOTAL PAIRWISE COLLISIONS: ${totalCollisions}`);
+  console.log(`TOTAL BOUNDARY / DOCK VIOLATIONS: ${totalBoundaryViolations}`);
   console.log('================================================================\n');
 
-  if (totalCollisions > 0) {
-    console.error(`Audit failed: ${totalCollisions} collisions detected.`);
+  if (totalCollisions > 0 || totalBoundaryViolations > 0) {
+    console.error(`Audit failed: ${totalCollisions} collisions, ${totalBoundaryViolations} boundary violations.`);
     process.exit(1);
   } else {
-    console.log('🎉 AUDIT SUCCESS: 100% Zero-Overlap Verified across all 7 states (0px collisions)!');
+    console.log('🎉 AUDIT SUCCESS: 100% Zero-Overlap & Zero-Clipping Verified across all 7 states (0px collisions)!');
     process.exit(0);
   }
 }
