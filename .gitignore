@@ -1,5 +1,18 @@
+# Dependencies
 node_modules/
+package-lock.json.log
+
+# Build & Dist
 dist/
+build/
+.cache/
+
+# Demo Video Intermediate Generation Artifacts
 demo/raw/
+demo/audio/
+
+# System & IDE
 .DS_Store
+Thumbs.db
 *.log
+*.tmp
