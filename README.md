@@ -10,6 +10,17 @@
 
 ---
 
+## ⚡ Live Interactive Preview & 1-Click Vercel Deploy
+
+Experience the real-time 3D WebGL aerospace MRO workbench directly in your browser, or deploy your own instance to Vercel with zero configuration:
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Ffokrulanthro16-eng%2Faerotorque-spatial-specs)
+
+- **Root Spatial Route:** `/` immediately renders the full interactive 3D workbench (`preview/index.html`).
+- **Zero-Dependency Static Deploy:** Pre-bundled Three.js spatial vendor runtime ensures instant deployment without heavy `devDependencies`.
+
+---
+
 ## 🎬 Official Demo Video
 
 📺 **Watch on YouTube:** [https://youtu.be/Amf9RXwt_NM](https://youtu.be/Amf9RXwt_NM)
